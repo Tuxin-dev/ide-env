@@ -1,19 +1,38 @@
-#!/bin/sh
+#!/bin/bash
+#
+# ------------------- To adapt ---------------------
+# Script version
+VERSION=1.0.0
+
 # Default Directory for Eclipse installation.This
 # variable can be overridden by the script's first
-# command-line parameter.
+# command-line parameter. The last term of this
+# path must be 'eclipse'.
 INSTALL_DIRECTORY="${HOME}/bin/eclipse"
 
 # Default Workspace.This variable can be overridden
 # by the script's second command-line parameter.
 DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
 
-ECLIPSE_TARBALL="eclipse-cpp-2019-03-R-linux-gtk-x86_64.tar.gz"
-ASSETS_DIR=".."
-ECLIPSE_URL="http://mirror.ibcp.fr/pub/eclipse//technology/epp/downloads/release/2019-03/R/${ECLIPSE_TARBALL}"
+# ECLIPSE VARIABLES
+ECLIPSE_VERSION="2019-03"
+ECLIPSE_REVISION="R"
+ECLIPSE_ARCH="linux-gtk-x86_64"
+CDT_VERSION="9.7"
+# ------------------- End To adapt -----------------
 
-# Script version
-VERSION=1.0.0
+# Read system informations
+OS_TYPE=`uname -s`
+if [ -e /etc/redhat-release ]; then
+    REDHAT_CENTOS=1
+elif [ -e /etc/lsb-release ]; then
+    DEBIAN=1
+fi
+
+# Eclipse repository informations
+ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}-${ECLIPSE_ARCH}.tar.gz"
+ASSETS_DIR=".."
+ECLIPSE_URL="http://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
 
 if [ "$1" != "" ]; then
   INSTALL_DIRECTORY=${1}
@@ -22,6 +41,7 @@ if [ "$1" != "" ]; then
   fi
 fi
 
+# Functions
 help_message () {
   echo ""
   echo "Syntax : ${0} [install_dir] [workspace_name]"
@@ -37,6 +57,8 @@ install_plugin () {
   fi
 }
 
+# Installation 
+# ------------
 echo "Installing the C/C++ Development Environment"
 echo "Version v$VERSION"
 echo ""
@@ -45,6 +67,7 @@ echo ""
 if [ -e "${INSTALL_DIRECTORY}/eclipse" ]; then
     echo "An installation has already been done at ${INSTALL_DIRECTORY}."
     echo "Please delete it before starting a new one."
+    exit 1
 fi
 
 # Create installation directory
@@ -58,6 +81,7 @@ fi
 
 # Install Eclipse CDT
 echo "Loading Eclipse CDT ..."
+# ----------------------------------------------------------------------
 if [ ! -e ${ASSETS_DIR}/${ECLIPSE_TARBALL} ]; then
     curl -o /tmp/eclipse-cdt.tar.gz ${ECLIPSE_URL}
     if [ $? -ne 0 ]; then
@@ -68,7 +92,8 @@ else
     cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
 fi
 
-echo "Installing Eclipse CDT ..."
+echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} ..."
+# ----------------------------------------------------------------------
 cd $ECLIPSE_PATH
 tar xzf /tmp/eclipse-cdt.tar.gz
 if [ $? -ne 0 ]; then
@@ -77,9 +102,32 @@ if [ $? -ne 0 ]; then
 fi
 rm /tmp/eclipse-cdt.tar.gz
 
+# Change Splash Screen
+if [ -e "${ASSETS_DIR}/splash.bmp" ]; then
+    mv ${INSTALL_DIRECTORY}/plugins/org.eclipse.platform_*/splash.bmp \
+       ${INSTALL_DIRECTORY}/plugins/org.eclipse.platform_*/splash.bmp.bak
+    mv ${INSTALL_DIRECTORY}/plugins/org.eclipse.epp.package.common_*/splash.bmp \
+       ${INSTALL_DIRECTORY}/plugins/org.eclipse.epp.package.common_*/splash.bmp.bak
+    cp ${ASSETS_DIR}/splash.bmp \
+       ${INSTALL_DIRECTORY}/plugins/org.eclipse.platform_*/
+    cp ${ASSETS_DIR}/splash.bmp \
+       ${INSTALL_DIRECTORY}/plugins/org.eclipse.epp.package.common_*/
+fi
+
+echo "Installing packages ..."
+# ----------------------------------------------------------------------
+if [ DEBIAN ]; then
+    sudo apt-get install git git-flow git-man git-review gitk
+elif [ REDHAT_CENTOS ]; then
+
+fi
+
 echo "Loading plugins ..."
-#REPO_PLUGINS=http://download.eclipse.org/releases/2019-03
-REPO_PLUGINS=http://download.eclipse.org/releases/latest
+# ----------------------------------------------------------------------
+REPO_PLUGINS=http://download.eclipse.org/releases/${ECLIPSE_VERSION}
+# ----------------------------------------------------------------------
+#REPO_PLUGINS=http://download.eclipse.org/releases/latest
+
 echo "-> gitflow"
 install_plugin ${REPO_PLUGINS} \
                org.eclipse.egit.gitflow.feature.feature.group
@@ -102,18 +150,21 @@ echo "-> Papyrus UML"
 install_plugin ${REPO_PLUGINS} \
                org.eclipse.papyrus.sdk.feature.feature.group,
 
-REPO_PLUGINS=http://download.eclipse.org/tools/cdt/releases/9.7
+# ------------------------------------------------------------------------
+REPO_PLUGINS=http://download.eclipse.org/tools/cdt/releases/${CDT_VERSION}
+# ------------------------------------------------------------------------
 # Already included in Eclipse CDT
-#echo "-> Arduino C/C++ Tools"
-#install_plugin ${REPO_PLUGINS} \
-#               org.eclipse.cdt.arduino.feature.group
+# echo "-> Arduino C/C++ Tools"
+# install_plugin ${REPO_PLUGINS} \
+#                org.eclipse.cdt.arduino.feature.group
 
 echo "-> Barre d'exécution pour CDT"
 install_plugin ${REPO_PLUGINS} \
                org.eclipse.launchbar.feature.group
 
-
+# -------------------------------------------------------------
 REPO_PLUGINS=http://gnu-mcu-eclipse.netlify.com/v4-neon-updates
+# -------------------------------------------------------------
 echo "-> MCU ARM"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.managedbuild.cross.arm.feature.feature.group
@@ -122,7 +173,7 @@ echo "-> CodeRed Debug Perspective for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.codered.feature.feature.group
 
-mecho "-> mylyn for jenkins"
+mecho "-> MCU ARM Documentation"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.doc.user.feature.feature.group
 
@@ -134,7 +185,7 @@ echo "-> Generic Cortex-M Project Templates for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.templates.cortexm.feature.feature.group
 
-echo "-> OpenOCD Debbugging for MCU"
+echo "-> OpenOCD Debugging for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.debug.gdbjtag.openocd.feature.feature.group
 
@@ -142,7 +193,7 @@ echo "-> Packs for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.packs.feature.feature.group
 
-echo "-> QEMU Debbugging for MCU"
+echo "-> QEMU Debugging for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.debug.gdbjtag.qemu.feature.feature.group
 
@@ -150,7 +201,9 @@ echo "-> STM32Fx Project Templates for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.templates.stm.feature.feature.group
 
+# ---------------------------------------
 REPO_PLUGINS=http://anb0s.github.io/eclox
+# ---------------------------------------
 echo "-> Doxygen for Eclipse"
 install_plugin ${REPO_PLUGINS} \
                org.gna.eclox.feature.feature.group
@@ -160,9 +213,4 @@ echo "-> Cppcheck"
 install_plugin ${REPO_PLUGINS} \
                com.googlecode.cppcheclipse.feature.feature.group
 
-# PlantUML
-#REPO_PLUGINS=http://hallvard.github.io/plantuml/
-#echo "-> PlantUML"
-#install_plugin ${REPO_PLUGINS} \
-#               net.sourceforge.plantuml.lib
 
