@@ -208,9 +208,25 @@ echo "-> Doxygen for Eclipse"
 install_plugin ${REPO_PLUGINS} \
                org.gna.eclox.feature.feature.group
 
+# ----------------------------------------------------------
 REPO_PLUGINS=https://dl.bintray.com/cppcheclipse/p2/updates/
+# ----------------------------------------------------------
 echo "-> Cppcheck"
 install_plugin ${REPO_PLUGINS} \
                com.googlecode.cppcheclipse.feature.feature.group
+
+# --------------------------------------------------------
+REPO_PLUGINS=https://eclipse-color-theme.github.com/update
+# --------------------------------------------------------
+echo "-> Eclipse Color Theme"
+install_plugin ${REPO_PLUGINS} \
+               com.github.eclipsecolortheme.feature.feature.group
+
+# ----------------------------------------------------
+REPO_PLUGINS=https://dl.bintray.com/de-jcup/basheditor
+# ----------------------------------------------------
+echo "-> Bash Editor"
+install_plugin ${REPO_PLUGINS} \
+               com.github.eclipsecolortheme.feature.feature.group
 
 

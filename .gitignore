@@ -1,7 +1,10 @@
+.gitignore
 EASStyle_1.0.0.xml
 EclipseEasCodeTemplates_1.2.0.xml
 eclipse-cpp-2019-03-R-linux-gtk-x86_64.tar.gz
 eclipse.ini
+gtkrc
+.project
 
 # ---> C
 # Object files
