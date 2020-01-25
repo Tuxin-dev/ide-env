@@ -173,7 +173,7 @@ echo "-> CodeRed Debug Perspective for MCU"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.codered.feature.feature.group
 
-mecho "-> MCU ARM Documentation"
+echo "-> MCU ARM Documentation"
 install_plugin ${REPO_PLUGINS} \
                ilg.gnumcueclipse.doc.user.feature.feature.group
 
@@ -229,4 +229,20 @@ echo "-> Bash Editor"
 install_plugin ${REPO_PLUGINS} \
                com.github.eclipsecolortheme.feature.feature.group
 
+# ----------------------------------------------------
+REPO_PLUGINS=http://hallvard.github.io/plantuml/
+# ----------------------------------------------------
+echo "-> Plant UML"
+install_plugin ${REPO_PLUGINS} \
+               net.sourceforge.plantuml.ecore.feature.feature.group
+               
+install_plugin ${REPO_PLUGINS} \
+               net.sourceforge.plantuml.feature.feature.group
+               
+install_plugin ${REPO_PLUGINS} \
+               net.sourceforge.plantuml.lib.jlatexmath.feature.feature.group
+               
+install_plugin ${REPO_PLUGINS} \
+                 net.sourceforge.plantuml.lib.feature.feature.group
+                            
 
