@@ -83,14 +83,14 @@ fi
 echo "Loading Eclipse CDT ..."
 # ----------------------------------------------------------------------
 if [ ! -e ${ASSETS_DIR}/${ECLIPSE_TARBALL} ]; then
-    curl -o /tmp/eclipse-cdt.tar.gz ${ECLIPSE_URL}
+    curl -o ${ASSETS_DIR}/${ECLIPSE_TARBALL} ${ECLIPSE_URL}
     if [ $? -ne 0 ]; then
         echo "Failed to download ${ECLIPSE_URL}"
         exit 3
     fi
-else
-    cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
 fi
+cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
+
 
 echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} ..."
 # ----------------------------------------------------------------------
