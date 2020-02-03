@@ -15,10 +15,10 @@ INSTALL_DIRECTORY="${HOME}/bin/eclipse"
 DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
 
 # ECLIPSE VARIABLES
-ECLIPSE_VERSION="2019-03"
+ECLIPSE_VERSION="2019-12"
 ECLIPSE_REVISION="R"
 ECLIPSE_ARCH="linux-gtk-x86_64"
-CDT_VERSION="9.7"
+CDT_VERSION="9.10"
 # ------------------- End To adapt -----------------
 
 # Read system informations
@@ -119,7 +119,7 @@ echo "Installing packages ..."
 if [ DEBIAN ]; then
     sudo apt-get install git git-flow git-man git-review gitk
 elif [ REDHAT_CENTOS ]; then
-
+    sudo yum install git git-flow git-man git-review gitk
 fi
 
 echo "Loading plugins ..."
