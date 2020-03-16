@@ -6,8 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.2.0] - 2019-xx-xx
+## [0.3.0] - 2019-xx-xx
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [0.2.0] - 2020-02-11
+### Added
+* Installing the following plugins:
+  - Corrosion : Rust Editor
 ### Changed
 ### Deprecated
 ### Removed
