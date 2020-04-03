@@ -6,9 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.3.0] - 2019-xx-xx
+## [0.4.0] - 2020-xx-xx
 ### Added
 ### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [0.3.0] - 2020-04-x03
+### Added
+* Installs compilers on system
+### Changed
+* Creates INSTALL_CMD command
 ### Deprecated
 ### Removed
 ### Fixed

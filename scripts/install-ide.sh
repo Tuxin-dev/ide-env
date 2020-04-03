@@ -12,25 +12,29 @@
 ## @since       Created 05/26/2019 (JPB)
 ## @since       Modified 02/01/2020 (JPB) - Adds some plugins
 ## @since       Modified 02/17/2020 (JPB) - Select the plugins installed
+##                                          Adds Compilers installation
 ## 
 ## @date        February 17, 2020
 ##
 ## ****************************************************************************
 #
-# ------------------- To adapt ---------------------
+# ------------------- Customizable ---------------------
+
+DEV_USERNAME="Tuxin"
+DEV_EMAIL="tuxin@free.fr"
 
 # Selects plugins to install
-INSTALL_GITEXTEND=1
-INSTALL_JENKINS=1
-INSTALL_CHANGELOG=1
-INSTALL_UML=1
-INSTALL_RUST=1
-INSTALL_GOLANG=1
-INSTALL_MCUARM=1
-INSTALL_DOXYGEN=1
-INSTALL_CPPCHECK=1
-INSTALL_THEME=1
-INSTALL_BASH_EDITOR=1
+INSTALL_GITEXTEND=1	# Git Tools
+INSTALL_JENKINS=1       # Jenkins integration
+INSTALL_CHANGELOG=1     # Changelog management
+INSTALL_UML=1           # UML Tools
+INSTALL_RUST=1          # Rust Language
+INSTALL_GOLANG=1        # Go Language
+INSTALL_MCUARM=1        # ARM barebone dev tools
+INSTALL_DOXYGEN=1       # Doxygen plugin
+INSTALL_CPPCHECK=1      # Cppcheck plugin
+INSTALL_THEME=1         # Eclipse Color Theme Plugin
+INSTALL_BASH_EDITOR=1   # Bash editor plugin
 
 # Default Directory for Eclipse installation.This
 # variable can be overridden by the script's first
@@ -121,30 +125,48 @@ cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
 
 echo "Installing packages ..."
 # ----------------------------------------------------------------------
+if [ $EUID -neq 0 ]; then
+    SUDO=sudo
+else
+    SUDO=
+fi
+
 if [ DEBIAN ]; then
-    INSTALL_CMD="apt-get install"
-    REMOVE_CMD="apt-get remove"
+    INSTALL_CMD="$SUDO apt-get install -y"
+    REMOVE_CMD="$SUDO apt-get remove -y"
 elif [ REDHAT_CENTOS ]; then
-    INSTALL_CMD="yum install"
-    REMOVE_CMD="yum remove"
+    INSTALL_CMD="$SUDO yum install"
+    REMOVE_CMD="$SUDO yum remove"
 fi
 
 echo "Installing Java Runtime Environment"
-sudo ${INSTALL_CMD} default-jre
+${INSTALL_CMD} default-jre
+
+echo "Installing C/C++ compiler"
+${INSTALL_CMD} binutils-arm-linux-gnueabi binutils-arm-linux-gnueabihf
+${INSTALL_CMD} g++-arm-linux-gnueabi g++-arm-linux-gnueabihf
+${INSTALL_CMD} g++-multilib-arm-linux-gnueabi g++-multilib-arm-linux-gnueabihf
+${INSTALL_CMD} gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf
+${INSTALL_CMD} gcc-multilib-arm-linux-gnueabi gcc-multilib-arm-linux-gnueabihf
+${INSTALL_CMD} binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+${INSTALL_CMD} gdb gdb-multiarch gdbserver
+
+if [ $INSTALL_RUST = "1" ]; then
+fi
 
 if [ $INSTALL_GITEXTEND = "1" ]; then
     echo "Installing Git tools ..."
-    sudo ${INSTALL_CMD} git git-flow git-man git-review gitk
+    ${INSTALL_CMD} git git-flow git-man git-review gitk
 fi
 if [ $INSTALL_RUST = "1" ]; then
-    echo "Installing Rust language ..."
+    echo "Installing Rust compiler"
     dpkg --list 'rustc' >/dev/null 2>&1
     if [ "$?" == "0" ]; then
-        sudo ${REMOVE_CMD} rustc
+        ${REMOVE_CMD} rustc
     fi
-    #sudo ${INSTALL_CMD} rustc cargo
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     ~/.cargo/bin/rustup component add rls
+    ${INSTALL_CMD} rustc rust-gdb libstd-rust-dev cargo
 fi
 if [ $INSTALL_DOXYGEN = "1" ]; then
     echo "Installing Doxygen ..."
@@ -154,7 +176,9 @@ if [ $INSTALL_DOXYGEN = "1" ]; then
     cd build
     cmake -G "Unix Makefiles" ..
     make
-    sudo make install
+    $SUDO make install
+    cd ../..
+    rm -R doxygen
 fi
 
 echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} ..."
@@ -288,6 +312,7 @@ REPO_PLUGINS=https://dl.bintray.com/cppcheclipse/p2/updates/
 # ----------------------------------------------------------
 if [ $INSTALL_CPPCHECK == "1" ]; then
     echo "-> Cppcheck"
+    ${INSTALL_CMD}  cppcheck
     install_plugin ${REPO_PLUGINS} \
                    com.googlecode.cppcheclipse.feature.feature.group
 fi
