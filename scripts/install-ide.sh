@@ -74,7 +74,7 @@ fi
 
 # Eclipse repository informations
 ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}${ECLIPSE_EXTRA}-${ECLIPSE_ARCH}.tar.gz"
-ASSETS_DIR=".."
+ASSETS_DIR="../assets"
 ECLIPSE_URL="http://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
 
 if [ "$1" != "" ]; then
