@@ -6,34 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2020-xx-xx
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+
+### Security
 ## [0.4.0] - 2020-xx-xx
 ### Added
 ### Changed
+* Install Eclipse 2020-06M2 with CDT 9.11
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
-## [0.3.0] - 2020-04-x03
+## [0.3.0] - 2020-04-03
 ### Added
 * Installs compilers on system
 ### Changed
 * Creates INSTALL_CMD command
-### Deprecated
-### Removed
-### Fixed
-### Security
 
 ## [0.2.0] - 2020-02-11
 ### Added
 * Installing the following plugins:
   - Corrosion : Rust Editor
-### Changed
-### Deprecated
-### Removed
-### Fixed
-### Security
-
 
 ## [0.1.0] - 2019-06-01
 ### Added

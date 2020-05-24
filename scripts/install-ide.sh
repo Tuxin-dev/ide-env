@@ -8,20 +8,24 @@
 ##              development, and much more.
 ##
 ## @author      Tuxin (JPB)
-## @version     1.1.0
-## @since       Created 05/26/2019 (JPB)
-## @since       Modified 02/01/2020 (JPB) - Adds some plugins
-## @since       Modified 02/17/2020 (JPB) - Select the plugins installed
-##                                          Adds Compilers installation
+## @version     1.2.0
+## @since       Created 2019-05-26 (JPB)
+## @since       Modified 2020-02-01 (JPB) - Adds some plugins
+## @since       Modified 2020-02-17 (JPB) - Select the plugins installed
+##                                          Add Compilers installation
+## @since       Modified 2020-05-21 (JPB) - Release Candidate can be installed
+##                                        - Update to Eclipse 2020-06
+##                                        - Add Custom Configuration
 ## 
-## @date        February 17, 2020
+## @date        May 21, 2020
 ##
 ## ****************************************************************************
 #
+VERSION="1.2.0"
 # ------------------- Customizable ---------------------
 
-DEV_USERNAME="Tuxin"
-DEV_EMAIL="tuxin@free.fr"
+DEV_USERNAME="Jean-Pierre"
+DEV_EMAIL="jp.blasi@capmonetique.com"
 
 # Selects plugins to install
 INSTALL_GITEXTEND=1	# Git Tools
@@ -35,6 +39,7 @@ INSTALL_DOXYGEN=1       # Doxygen plugin
 INSTALL_CPPCHECK=1      # Cppcheck plugin
 INSTALL_THEME=1         # Eclipse Color Theme Plugin
 INSTALL_BASH_EDITOR=1   # Bash editor plugin
+INSTALL_CONFIG=1        # Create Custom Configuration
 
 # Default Directory for Eclipse installation.This
 # variable can be overridden by the script's first
@@ -47,11 +52,17 @@ INSTALL_DIRECTORY="${HOME}/bin/eclipse"
 DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
 
 # ECLIPSE VARIABLES
-ECLIPSE_VERSION="2019-12"
-ECLIPSE_REVISION="R"
+ECLIPSE_VERSION="2020-06"
+ECLIPSE_REVISION="M2"
 ECLIPSE_ARCH="linux-gtk-x86_64"
-CDT_VERSION="9.10"
+CDT_VERSION="9.11"
+
+# FILES
+STYLE_FILE="EASStyle_1.0.0.xml"
 # ------------------- End To adapt -----------------
+if [ "${ECLIPSE_REVISION:0:1}" != "R" ]; then
+    ECLIPSE_EXTRA="-incubation"
+fi
 
 # Read system informations
 OS_TYPE=`uname -s`
@@ -62,7 +73,7 @@ elif [ -e /etc/lsb-release ]; then
 fi
 
 # Eclipse repository informations
-ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}-${ECLIPSE_ARCH}.tar.gz"
+ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}${ECLIPSE_EXTRA}-${ECLIPSE_ARCH}.tar.gz"
 ASSETS_DIR=".."
 ECLIPSE_URL="http://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
 
@@ -113,6 +124,7 @@ fi
 
 # Install Eclipse CDT
 echo "Loading Eclipse CDT ..."
+echo "${ECLIPSE_URL} file"
 # ----------------------------------------------------------------------
 if [ ! -e ${ASSETS_DIR}/${ECLIPSE_TARBALL} ]; then
     curl -o ${ASSETS_DIR}/${ECLIPSE_TARBALL} ${ECLIPSE_URL}
@@ -125,7 +137,7 @@ cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
 
 echo "Installing packages ..."
 # ----------------------------------------------------------------------
-if [ $EUID -neq 0 ]; then
+if [ ! $EUID -eq 0 ]; then
     SUDO=sudo
 else
     SUDO=
@@ -150,9 +162,6 @@ ${INSTALL_CMD} gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf
 ${INSTALL_CMD} gcc-multilib-arm-linux-gnueabi gcc-multilib-arm-linux-gnueabihf
 ${INSTALL_CMD} binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 ${INSTALL_CMD} gdb gdb-multiarch gdbserver
-
-if [ $INSTALL_RUST = "1" ]; then
-fi
 
 if [ $INSTALL_GITEXTEND = "1" ]; then
     echo "Installing Git tools ..."
@@ -363,6 +372,13 @@ if [ $INSTALL_GOLANG == "1" ]; then
     # Prevents error message "could not start goclipse
     # because java version is 0"
     rm ${INSTALL_DIRECTORY}/plugins/com.googlecode.goclipse.jvmcheck*
+fi
+
+# CUSTOM CONFIGURATION
+if [ $INSTALL_CONFIG = "1" ]; then
+    echo "Configuring Eclipse ..."
+    echo "-Duser=${DEV_USERNAME}" >> ${ECLIPSE_PATH}/eclipse.ini
+    create-prefs ${ASSETS_DIR}/${STYLE_FILE} ${DEFAULT_WORKSPACE}    
 fi
 
 
