@@ -10,18 +10,24 @@
 ## @date        May 24, 2020
 ##
 ## ****************************************************************************
+# ECLIPSE WORKSPACE
+WORKSPACE=${1:-"${HOME}/eclipse-workspace"}
 
-## XML STYLE FILE
-XML_FILE=${1:-"style.xml"}
+# ASSETS DIRECTORY
+ASSETS_DIR="../assets"
 
-## ECLIPSE WORKSPACE
-WORKSPACE=${2:-"${HOME}/eclipse-workspace"}
+# XML STYLE FILE
+STYLE_FILE="${ASSETS_DIR}/style.xml"
 
+# XML TEMPLATES FILE
+TEMPLATE_FILE="${ASSETS_DIR}/templates.xml"
+
+# ECLIPSE PREFERENCE FILES
 CORE_PREFS_FILE="${WORKSPACE}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.cdt.core.prefs"
 UI_PREFS_FILE="${WORKSPACE}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.cdt.ui.prefs"
 
 # Extract style name from file path
-STYLE_NAME=`basename ${XML_FILE} .xml`
+STYLE_NAME=`basename ${STYLE_FILE} .xml`
 UI_PREFS=""
 
 ## ****************************************************************************
@@ -35,8 +41,11 @@ UI_PREFS=""
 ## @date        May 24, 2020
 ##
 ## ****************************************************************************
+COUNT=1
 process_line () {
     line=${1}
+    printf "Process line ${COUNT} \r"
+    COUNT=$(( COUNT + 1 ))
 # Detect version from '<profiles version="1">'
     if [[ ${line:1} == profiles* ]]; then
         PROFILE_VERSION="${line:19:1}"
@@ -49,6 +58,9 @@ process_line () {
     fi
 }
 
+# Create Workspace
+mkdir -p ${WORKSPACE}/.metadata/.plugins/org.eclipse.core.runtime/.settings/
+
 # Delete old preferences file
 rm -f ${CORE_PREFS_FILE}
 
@@ -56,15 +68,25 @@ rm -f ${CORE_PREFS_FILE}
 while IFS= read -r line
 do
     process_line "$line"
-done < "$XML_FILE"
+done < "$STYLE_FILE"
 
+printf "\nSort File ...\n"
 sort -o ${CORE_PREFS_FILE} ${CORE_PREFS_FILE}
 
-# Modify UI Preferences
+# Modify UI Preferences - For Style
+echo "Set Style ..."
 echo "formatter_profile=_${STYLE_NAME}" >> ${UI_PREFS_FILE}
 echo "formatter_settings_version=${PROFILE_VERSION}" >> ${UI_PREFS_FILE}
 echo "org.eclipse.cdt.ui.formatterprofiles=<?xml version\=\"1.0\" encoding\=\"UTF-8\" standalone\=\"no\"?>\\n<profiles version\="1">\\n    <profile kind\=\"CodeFormatterProfile\" name\=\"${STYLE_NAME}\" version\=\"${PROFILE_VERSION}\">\\n${UI_PREFS}" >> ${UI_PREFS_FILE}
-echo "org.eclipse.cdt.ui.formatterprofiles.version=${PROFILE_VERSION}"
+echo "org.eclipse.cdt.ui.formatterprofiles.version=${PROFILE_VERSION}" >> ${UI_PREFS_FILE}
+
+# Modify UI Preferences - For Templates
+echo "Set Templates ..."
+sed 's/$/\\n/g' ${TEMPLATE_FILE} > temp.xml
+sed 's/=/\\=/g' temp.xml >> temp2.xml
+TEMPLATES=`cat temp2.xml`
+rm temp.xml temp2.xml
+echo "org.eclipse.cdt.ui.text.custom_code_templates=$TEMPLATES" >> ${UI_PREFS_FILE}
 
 
 

@@ -51,6 +51,9 @@ INSTALL_DIRECTORY="${HOME}/bin/eclipse"
 # by the script's second command-line parameter.
 DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
 
+# Directory of this script
+SCRIPT_DIR=`dirname $0`
+
 # ECLIPSE VARIABLES
 ECLIPSE_VERSION="2020-06"
 ECLIPSE_REVISION="M2"
@@ -105,6 +108,7 @@ install_plugin () {
 echo "Installing the C/C++ Development Environment"
 echo "Version v$VERSION"
 echo ""
+cd ${SCRIPT_DIR}
 
 # Existing installation control
 if [ -e "${INSTALL_DIRECTORY}/eclipse" ]; then
@@ -378,7 +382,7 @@ fi
 if [ $INSTALL_CONFIG = "1" ]; then
     echo "Configuring Eclipse ..."
     echo "-Duser=${DEV_USERNAME}" >> ${ECLIPSE_PATH}/eclipse.ini
-    create-prefs ${ASSETS_DIR}/${STYLE_FILE} ${DEFAULT_WORKSPACE}    
+    ./create-prefs.sh ${DEFAULT_WORKSPACE}    
 fi
 
 
