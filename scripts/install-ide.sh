@@ -39,17 +39,17 @@ INSTALL_DOXYGEN=1       # Doxygen plugin
 INSTALL_CPPCHECK=1      # Cppcheck plugin
 INSTALL_THEME=1         # Eclipse Color Theme Plugin
 INSTALL_BASH_EDITOR=1   # Bash editor plugin
-INSTALL_CONFIG=1        # Create Custom Configuration
+INSTALL_CONFIG=0        # Create Custom Configuration
 
 # Default Directory for Eclipse installation.This
 # variable can be overridden by the script's first
 # command-line parameter. The last term of the path
 # must end with "eclipse".
-INSTALL_DIRECTORY="${HOME}/bin/eclipse"
+INSTALL_DIRECTORY="/opt/eclipse_2020-06"
 
 # Default Workspace.This variable can be overridden
 # by the script's second command-line parameter.
-DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
+DEFAULT_WORKSPACE="${HOME}/Programme/Linux"
 
 # Directory of this script
 SCRIPT_DIR=`dirname $0`
