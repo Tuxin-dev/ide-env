@@ -8,13 +8,15 @@
 ##              development, and much more.
 ##
 ## @author      Tuxin (JPB)
-## @version     1.1.0
+## @version     1.2.0
 ## @since       Created 05/26/2019 (JPB)
 ## @since       Modified 02/01/2020 (JPB) - Adds some plugins
 ## @since       Modified 02/17/2020 (JPB) - Select the plugins installed
 ##                                          Adds Compilers installation
+## @since       Modified 10/27/2020 (JPB) - Adds 'ANSI Escape in Console'
+##                                          plugin.
 ## 
-## @date        February 17, 2020
+## @date        October 27, 2020
 ##
 ## ****************************************************************************
 #
@@ -150,9 +152,6 @@ ${INSTALL_CMD} gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf
 ${INSTALL_CMD} gcc-multilib-arm-linux-gnueabi gcc-multilib-arm-linux-gnueabihf
 ${INSTALL_CMD} binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 ${INSTALL_CMD} gdb gdb-multiarch gdbserver
-
-if [ $INSTALL_RUST = "1" ]; then
-fi
 
 if [ $INSTALL_GITEXTEND = "1" ]; then
     echo "Installing Git tools ..."
@@ -365,5 +364,11 @@ if [ $INSTALL_GOLANG == "1" ]; then
     rm ${INSTALL_DIRECTORY}/plugins/com.googlecode.goclipse.jvmcheck*
 fi
 
-
-
+# ----------------------------------------------------
+REPO_PLUGINS=http://www.mihai-nita.net/eclipse
+# ----------------------------------------------------
+echo "-> ANSI Escape in Console Plugin"
+install_plugin ${REPO_PLUGINS} \
+               net.mihai-nita.ansicon.feature.group
+install_plugin ${REPO_PLUGINS} \
+               net.mihai-nita.externalfilter.feature.group
