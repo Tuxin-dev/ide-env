@@ -8,36 +8,41 @@
 ##              development, and much more.
 ##
 ## @author      Tuxin (JPB)
-## @version     1.2.0
-## @since       Created 05/26/2019 (JPB)
-## @since       Modified 02/01/2020 (JPB) - Adds some plugins
-## @since       Modified 02/17/2020 (JPB) - Select the plugins installed
+## @version     0.4.0
+## @since       Created 2019-05-26 (JPB)
+## @since       Modified 2020-02-01 (JPB) - Adds some plugins
+## @since       Modified 2020-02-17 (JPB) - Select the plugins installed
 ##                                          Adds Compilers installation
-## @since       Modified 10/27/2020 (JPB) - Adds 'ANSI Escape in Console'
+## @since       Modified 2020-10-27 (JPB) - Adds 'ANSI Escape in Console'
 ##                                          plugin.
+## @since       Modified 2020-09-26 (JPB) - Adds 'Dark Theme' plugin.
+## @since       Modified 2022-09-25 (JPB) - Modifies plugins.
 ##
-## @date        October 27, 2020
+## @date        September 25, 2022
 ##
 ## ****************************************************************************
 #
 # Script version
-VERSION="1.2.0"
+VERSION="0.4.0"
 # ------------------- Customizable ---------------------
 
 DEV_USERNAME="Tuxin"
 DEV_EMAIL="tuxin@free.fr"
 
 # Selects plugins to install
-INSTALL_GITEXTEND=1	# Git Tools
+INSTALL_GITEXTEND=1	    # Git Tools
 INSTALL_JENKINS=1       # Jenkins integration
+INSTALL_TULEAP=1        # Tuleap integration
 INSTALL_CHANGELOG=1     # Changelog management
 INSTALL_UML=1           # UML Tools
-INSTALL_RUST=1          # Rust Language
-INSTALL_GOLANG=1        # Go Language
+INSTALL_RUST=0          # Rust Language
+INSTALL_GOLANG=0        # Go Language
 INSTALL_MCUARM=1        # ARM barebone dev tools
+INSTALL_ESP32=1         # ESP32 dev tools
 INSTALL_DOXYGEN=1       # Doxygen plugin
 INSTALL_CPPCHECK=1      # Cppcheck plugin
-INSTALL_THEME=1         # Eclipse Color Theme Plugin
+INSTALL_THEME=0         # Eclipse Color Theme Plugin
+INSTALL_DARK_THEME=1    # DevStyle Dark Theme Plugin
 INSTALL_BASH_EDITOR=1   # Bash editor plugin
 
 # Default Directory for Eclipse installation.This
@@ -51,10 +56,10 @@ INSTALL_DIRECTORY="${HOME}/bin/eclipse"
 DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
 
 # ECLIPSE VARIABLES
-ECLIPSE_VERSION="2019-12"
+ECLIPSE_VERSION="2022-09"
 ECLIPSE_REVISION="R"
 ECLIPSE_ARCH="linux-gtk-x86_64"
-CDT_VERSION="9.10"
+CDT_VERSION="10.7"
 # ------------------- End To adapt -----------------
 
 # Read system informations
@@ -67,8 +72,8 @@ fi
 
 # Eclipse repository informations
 ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}-${ECLIPSE_ARCH}.tar.gz"
-ASSETS_DIR=".."
-ECLIPSE_URL="http://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
+ASSETS_DIR="./download"
+ECLIPSE_URL="https://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
 
 if [ "$1" != "" ]; then
   INSTALL_DIRECTORY=${1}
@@ -96,6 +101,7 @@ install_plugin () {
 # Installation 
 # ------------
 echo "Installing the C/C++ Development Environment"
+echo "in ${INSTALL_DIRECTORY} directory."
 echo "Version v$VERSION"
 echo ""
 
@@ -116,20 +122,26 @@ if [ ! -d $ECLIPSE_PATH ]; then
 fi
 
 # Install Eclipse CDT
-echo "Loading Eclipse CDT ..."
+echo "Loading Eclipse CDT from ${ECLIPSE_URL}"
 # ----------------------------------------------------------------------
+if [ ! -d ${ASSETS_DIR} ]; then
+    echo "Creates Assets directory : ${ASSETS_DIR}"
+    mkdir ${ASSETS_DIR}
+fi
 if [ ! -e ${ASSETS_DIR}/${ECLIPSE_TARBALL} ]; then
     curl -o ${ASSETS_DIR}/${ECLIPSE_TARBALL} ${ECLIPSE_URL}
     if [ $? -ne 0 ]; then
         echo "Failed to download ${ECLIPSE_URL}"
         exit 3
     fi
+else
+    echo "Using local ${ASSETS_DIR}/${ECLIPSE_TARBALL}"   
 fi
 cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
 
 echo "Installing packages ..."
 # ----------------------------------------------------------------------
-if [ $EUID -neq 0 ]; then
+if [[ $EUID -ne 0 ]]; then
     SUDO=sudo
 else
     SUDO=
@@ -170,16 +182,20 @@ if [ $INSTALL_RUST = "1" ]; then
     ${INSTALL_CMD} rustc rust-gdb libstd-rust-dev cargo
 fi
 if [ $INSTALL_DOXYGEN = "1" ]; then
-    echo "Installing Doxygen ..."
-    git clone https://github.com/doxygen/doxygen.git
-    cd doxygen
-    mkdir build
-    cd build
-    cmake -G "Unix Makefiles" ..
-    make
-    $SUDO make install
-    cd ../..
-    rm -R doxygen
+    if [ -f /usr/local/bin/doxygen ]; then
+        echo "Warning: Doxygen Already installed !"
+    else
+        echo "Installing Doxygen ..."
+        git clone https://github.com/doxygen/doxygen.git
+        cd doxygen
+        mkdir build
+        cd build
+        cmake -G "Unix Makefiles" ..
+        make
+        $SUDO make install
+        cd ../..
+        rm -R doxygen
+    fi
 fi
 
 echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} ..."
@@ -192,6 +208,9 @@ if [ $? -ne 0 ]; then
 fi
 rm /tmp/eclipse-cdt.tar.gz
 
+# Configure Eclipse startup
+echo "-Duser.name=${DEV_USERNAME}" >> ${INSTALL_DIRECTORY}/eclipse.ini
+
 # Change Splash Screen
 if [ -e "${ASSETS_DIR}/splash.bmp" ]; then
     mv ${INSTALL_DIRECTORY}/plugins/org.eclipse.platform_*/splash.bmp \
@@ -202,14 +221,6 @@ if [ -e "${ASSETS_DIR}/splash.bmp" ]; then
        ${INSTALL_DIRECTORY}/plugins/org.eclipse.platform_*/
     cp ${ASSETS_DIR}/splash.bmp \
        ${INSTALL_DIRECTORY}/plugins/org.eclipse.epp.package.common_*/
-fi
-
-echo "Installing packages ..."
-# ----------------------------------------------------------------------
-if [ DEBIAN ]; then
-    sudo apt-get install git git-flow git-man git-review gitk
-elif [ REDHAT_CENTOS ]; then
-
 fi
 
 echo "Loading plugins ..."
@@ -335,13 +346,22 @@ if [ $INSTALL_THEME == "1" ]; then
                    com.github.eclipsecolortheme.feature.feature.group
 fi
 
+# --------------------------------------------------------
+REPO_PLUGINS=https://www.genuitec.com/updates/devstyle/ci/
+# --------------------------------------------------------
+if [ $INSTALL_DARK_THEME == "1" ]; then
+    echo "-> DevStyle Dark Theme"
+    install_plugin ${REPO_PLUGINS} \
+                    com.genuitec.eclipse.theming.core.feature.feature.group
+
+#https://de-jcup.github.io/update-site-eclipse-bash-editor/update-site
 # ----------------------------------------------------
 REPO_PLUGINS=https://dl.bintray.com/de-jcup/basheditor
 # ----------------------------------------------------
 if [ $INSTALL_BASH_EDITOR == "1" ]; then
     echo "-> Bash Editor"
     install_plugin ${REPO_PLUGINS} \
-                   com.github.eclipsecolortheme.feature.feature.group
+                   de.jcup.basheditor.feature.group
 fi
 
 # ----------------------------------------------------
@@ -382,3 +402,10 @@ install_plugin ${REPO_PLUGINS} \
                net.mihai-nita.ansicon.feature.group
 install_plugin ${REPO_PLUGINS} \
                net.mihai-nita.externalfilter.feature.group
+               
+# ----------------------------------------------------
+REPO_PLUGINS=http://www.mihai-nita.net/eclipse
+# ----------------------------------------------------
+echo "-> Mylin Tasks Connector"
+install_plugin ${REPO_PLUGINS} \
+               org.tuleap.mylyn.task_feature.feature.group

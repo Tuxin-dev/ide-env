@@ -1,10 +1,15 @@
+# Miscellanous
 EASStyle_1.0.0.xml
 EclipseEasCodeTemplates_1.2.0.xml
-eclipse-cpp-2019-03-R-linux-gtk-x86_64.tar.gz
+*.tar.gz
 eclipse.ini
 gtkrc
+cer.txt
+splash.bmp
 .project
-*.tar.gz
+/C/
+/python/
+/docker/
 
 # ---> C
 # Object files

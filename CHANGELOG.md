@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 ### Security
 
-## [0.3.0] - 2020-04-x03
+## [0.3.0] - 2020-04-03
 ### Added
 * Installs compilers on system
 ### Changed
