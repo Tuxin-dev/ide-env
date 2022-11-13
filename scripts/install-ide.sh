@@ -52,13 +52,12 @@ INSTALL_BASH_EDITOR=1   # Bash editor plugin
 
 # Default Directory for Eclipse installation.This
 # variable can be overridden by the script's first
-# command-line parameter. The last term of the path
-# must end with "eclipse".
-INSTALL_DIRECTORY="${HOME}/bin/eclipse"
+# command-line parameter.
+INSTALL_DIRECTORY="${1:-${HOME}/bin}"
 
 # Default Workspace.This variable can be overridden
 # by the script's second command-line parameter.
-DEFAULT_WORKSPACE="${HOME}/eclipse-workspace"
+DEFAULT_WORKSPACE="${2:-${HOME}/eclipse-workspace}"
 
 # ECLIPSE VARIABLES
 ECLIPSE_VERSION="2022-09"
@@ -79,13 +78,6 @@ fi
 ECLIPSE_TARBALL="eclipse-cpp-${ECLIPSE_VERSION}-${ECLIPSE_REVISION}-${ECLIPSE_ARCH}.tar.gz"
 ASSETS_DIR="./download"
 ECLIPSE_URL="https://mirror.ibcp.fr/pub/eclipse/technology/epp/downloads/release/${ECLIPSE_VERSION}/${ECLIPSE_REVISION}/${ECLIPSE_TARBALL}"
-
-if [ "$1" != "" ]; then
-  INSTALL_DIRECTORY=${1}
-  if [ "$2" != "" ]; then
-    DEFAULT_WORKSPACE=${2}
-  fi
-fi
 
 # Functions
 help_message () {
@@ -112,14 +104,15 @@ echo ""
 
 if [ "$INSTALL_ECLIPSE" == "1" ]; then
 # Existing installation control
-if [ -e "${INSTALL_DIRECTORY}/eclipse" ]; then
+if [ -e "${INSTALL_DIRECTORY}/eclipse_${ECLIPSE_VERSION}/eclipse" ]; then
     echo "An installation has already been done at ${INSTALL_DIRECTORY}."
     echo "Please delete it before starting a new one."
     exit 1
 fi
 
 # Create installation directory
-ECLIPSE_PATH=`dirname ${INSTALL_DIRECTORY}`
+ECLIPSE_PATH="${INSTALL_DIRECTORY}"
+echo "Creates directory $ECLIPSE_PATH ..."
 mkdir -p $ECLIPSE_PATH
 if [ ! -d $ECLIPSE_PATH ]; then
     echo "Can not create directory $ECLIPSE_PATH !"
@@ -205,17 +198,26 @@ if [ $INSTALL_DOXYGEN = "1" ]; then
         rm -R doxygen
     fi
 fi
+if [ $INSTALL_CPPCHECK == "1" ]; then
+    echo "Installing Cppcheck ..."
+    ${INSTALL_CMD} cppcheck
+fi
+fi
 
 if [ "$INSTALL_ECLIPSE" == "1" ]; then
 echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} in ${ECLIPSE_PATH} ..."
 # ----------------------------------------------------------------------
-cd $ECLIPSE_PATH
+mkdir ${INSTALL_DIRECTORY}/tmp
+cd ${INSTALL_DIRECTORY}/tmp
 tar xzf /tmp/eclipse-cdt.tar.gz
 if [ $? -ne 0 ]; then
     echo "Failed to decompress in ${ECLIPSE_PATH}"
     exit 4
 fi
-rm /tmp/eclipse-cdt.tar.gz
+INSTALL_DIRECTORY=${INSTALL_DIRECTORY}/eclipse_${ECLIPSE_VERSION}
+mv eclipse ${INSTALL_DIRECTORY}/
+cd ..
+rm -R ./tmp
 
 # Configure Eclipse startup
 echo "-Duser.name=${DEV_USERNAME}" >> ${INSTALL_DIRECTORY}/eclipse.ini
