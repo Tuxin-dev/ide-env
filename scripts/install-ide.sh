@@ -60,10 +60,10 @@ INSTALL_DIRECTORY="${1:-${HOME}/bin}"
 DEFAULT_WORKSPACE="${2:-${HOME}/eclipse-workspace}"
 
 # ECLIPSE VARIABLES
-ECLIPSE_VERSION="2022-09"
+ECLIPSE_VERSION="2022-03"
 ECLIPSE_REVISION="R"
 ECLIPSE_ARCH="linux-gtk-x86_64"
-CDT_VERSION="10.7"
+CDT_VERSION="10.6"
 # ------------------- End To adapt -----------------
 
 # Read system informations
@@ -288,9 +288,9 @@ REPO_PLUGINS=http://download.eclipse.org/tools/cdt/releases/${CDT_VERSION}
 # install_plugin ${REPO_PLUGINS} \
 #                org.eclipse.cdt.arduino.feature.group
 
-echo "-> Barre d'exécution pour CDT"
-install_plugin ${REPO_PLUGINS} \
-               org.eclipse.launchbar.feature.group
+#echo "-> Barre d'exécution pour CDT"
+#install_plugin ${REPO_PLUGINS} \
+#               org.eclipse.launchbar.feature.group
 
 # -------------------------------------------------------------
 REPO_PLUGINS=http://gnu-mcu-eclipse.netlify.com/v4-neon-updates
@@ -347,7 +347,6 @@ REPO_PLUGINS=https://dl.bintray.com/cppcheclipse/p2/updates/
 # ----------------------------------------------------------
 if [ $INSTALL_CPPCHECK == "1" ]; then
     echo "-> Cppcheck"
-    ${INSTALL_CMD}  cppcheck
     install_plugin ${REPO_PLUGINS} \
                    com.googlecode.cppcheclipse.feature.feature.group
 fi
@@ -370,9 +369,8 @@ if [ $INSTALL_DARK_THEME == "1" ]; then
                     com.genuitec.eclipse.theming.core.feature.feature.group
 fi
 
-#https://de-jcup.github.io/update-site-eclipse-bash-editor/update-site
 # ----------------------------------------------------
-REPO_PLUGINS=https://dl.bintray.com/de-jcup/basheditor
+REPO_PLUGINS=https://de-jcup.github.io/update-site-eclipse-bash-editor/update-site
 # ----------------------------------------------------
 if [ $INSTALL_BASH_EDITOR == "1" ]; then
     echo "-> Bash Editor"
@@ -418,11 +416,10 @@ install_plugin ${REPO_PLUGINS} \
                net.mihai-nita.ansicon.feature.group
 install_plugin ${REPO_PLUGINS} \
                net.mihai-nita.externalfilter.feature.group
-               
 # ----------------------------------------------------
-REPO_PLUGINS=http://www.mihai-nita.net/eclipse
+REPO_PLUGINS=http://eclipse.tuleap.net/mylyn.tasks/update/
 # ----------------------------------------------------
-echo "-> Mylin Tasks Connector"
+echo "-> Mylin Tasks Connector for Tuleap"
 install_plugin ${REPO_PLUGINS} \
                org.tuleap.mylyn.task_feature.feature.group
 
