@@ -16,26 +16,31 @@
 ## @since       Modified 2020-10-27 (JPB) - Adds 'ANSI Escape in Console'
 ##                                          plugin.
 ## @since       Modified 2020-09-26 (JPB) - Adds 'Dark Theme' plugin.
-## @since       Modified 2022-09-25 (JPB) - Modifies plugins.
+## @since       Modified 2022-09-25 (JPB) - Modifies plugins. Update to Eclipse
+##                                          2022-09 (CDT v10.7)
 ##
 ## @date        September 25, 2022
 ##
 ## ****************************************************************************
 #
 # Script version
-VERSION="0.4.0"
+VERSION="0.5.0"
 # ------------------- Customizable ---------------------
 
 DEV_USERNAME="Tuxin"
 DEV_EMAIL="tuxin@free.fr"
 
+INSTALL_PACKAGES=0
+INSTALL_ECLIPSE=0
+INSTALL_PLUGINS=1
+
 # Selects plugins to install
-INSTALL_GITEXTEND=1	    # Git Tools
+INSTALL_GITEXTEND=1     # Git Tools
 INSTALL_JENKINS=1       # Jenkins integration
 INSTALL_TULEAP=1        # Tuleap integration
 INSTALL_CHANGELOG=1     # Changelog management
-INSTALL_UML=1           # UML Tools
-INSTALL_RUST=0          # Rust Language
+INSTALL_UML=0           # UML Tools (Need edit)
+INSTALL_RUST=0          # Rust Language (Need edit)
 INSTALL_GOLANG=0        # Go Language
 INSTALL_MCUARM=1        # ARM barebone dev tools
 INSTALL_ESP32=1         # ESP32 dev tools
@@ -105,6 +110,7 @@ echo "in ${INSTALL_DIRECTORY} directory."
 echo "Version v$VERSION"
 echo ""
 
+if [ "$INSTALL_ECLIPSE" == "1" ]; then
 # Existing installation control
 if [ -e "${INSTALL_DIRECTORY}/eclipse" ]; then
     echo "An installation has already been done at ${INSTALL_DIRECTORY}."
@@ -138,7 +144,9 @@ else
     echo "Using local ${ASSETS_DIR}/${ECLIPSE_TARBALL}"   
 fi
 cp ${ASSETS_DIR}/${ECLIPSE_TARBALL} /tmp/eclipse-cdt.tar.gz
+fi
 
+if [ "$INSTALL_PACKAGES" == "1" ]; then
 echo "Installing packages ..."
 # ----------------------------------------------------------------------
 if [[ $EUID -ne 0 ]]; then
@@ -198,7 +206,8 @@ if [ $INSTALL_DOXYGEN = "1" ]; then
     fi
 fi
 
-echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} ..."
+if [ "$INSTALL_ECLIPSE" == "1" ]; then
+echo "Installing Eclipse ${ECLIPSE_VERSION} with CDT ${CDT_VERSION} in ${ECLIPSE_PATH} ..."
 # ----------------------------------------------------------------------
 cd $ECLIPSE_PATH
 tar xzf /tmp/eclipse-cdt.tar.gz
@@ -222,7 +231,11 @@ if [ -e "${ASSETS_DIR}/splash.bmp" ]; then
     cp ${ASSETS_DIR}/splash.bmp \
        ${INSTALL_DIRECTORY}/plugins/org.eclipse.epp.package.common_*/
 fi
+else
+    INSTALL_DIRECTORY=${INSTALL_DIRECTORY}/eclipse_${ECLIPSE_VERSION}
+fi
 
+if [ "$INSTALL_PLUGINS" == "1" ]; then
 echo "Loading plugins ..."
 # ----------------------------------------------------------------------
 REPO_PLUGINS=http://download.eclipse.org/releases/${ECLIPSE_VERSION}
@@ -353,6 +366,7 @@ if [ $INSTALL_DARK_THEME == "1" ]; then
     echo "-> DevStyle Dark Theme"
     install_plugin ${REPO_PLUGINS} \
                     com.genuitec.eclipse.theming.core.feature.feature.group
+fi
 
 #https://de-jcup.github.io/update-site-eclipse-bash-editor/update-site
 # ----------------------------------------------------
@@ -409,3 +423,5 @@ REPO_PLUGINS=http://www.mihai-nita.net/eclipse
 echo "-> Mylin Tasks Connector"
 install_plugin ${REPO_PLUGINS} \
                org.tuleap.mylyn.task_feature.feature.group
+
+fi
